@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,11 +26,12 @@ fun CatalogScreen(
     onProductClick: (Product) -> Unit
 ) {
     val context = LocalContext.current
-    val products = DataRepository.productsList
+    var currentProducts by remember { mutableStateOf(DataRepository.productsList) }
+    var showingPageOne by remember { mutableStateOf(true) }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
-            text = "Catálogo de Temporada",
+            text = if (showingPageOne) "Catálogo de Temporada" else "Nuevos Ingresos",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -41,7 +42,7 @@ fun CatalogScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // items del producto
-            items(products) { product ->
+            items(currentProducts) { product ->
                 ProductCard(product = product, onAddToCart = {
                     DataRepository.addToCart(product)
                     Toast.makeText(context, "Agregado: ${product.name}", Toast.LENGTH_SHORT).show()
@@ -52,11 +53,19 @@ fun CatalogScreen(
             item(span = { GridItemSpan(2) }) {
                 Button(
                     onClick = {
-                        Toast.makeText(context, "Cargando más productos...", Toast.LENGTH_SHORT).show()
+                        if (showingPageOne) {
+                            currentProducts = DataRepository.productsList2
+                            showingPageOne = false
+                            Toast.makeText(context, "Cargando más productos...", Toast.LENGTH_SHORT).show()
+                        } else {
+                            currentProducts = DataRepository.productsList
+                            showingPageOne = true
+                            Toast.makeText(context, "Volviendo a la página 1...", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     modifier = Modifier.padding(vertical = 24.dp).fillMaxWidth()
                 ) {
-                    Text("Siguiente Página")
+                    Text(if (showingPageOne) "Siguiente Página" else "Volver")
                 }
             }
         }

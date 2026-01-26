@@ -1,13 +1,12 @@
 package com.example.clothingstore.data
 
-import com.example.clothingstore.model.CartItem
-import com.example.clothingstore.model.Order
-import com.example.clothingstore.model.Product
 import com.example.clothingstore.R
+import com.example.clothingstore.model.CartItem
+import com.example.clothingstore.model.Product
 
 object DataRepository {
 
-    //CATÁLOGO
+    // PÁGINA 1
     val productsList = listOf(
         Product(1, "Camisa Negra", 10990, R.drawable.camisa2),
         Product(2, "Camisa Blanca", 12990, R.drawable.camisa1),
@@ -19,11 +18,23 @@ object DataRepository {
         Product(8, "Pantalón Cargo", 15990, R.drawable.pantaloncargo1),
         Product(9, "Chaqueta", 15990, R.drawable.chaquetaa),
         Product(10, "Zapatillas", 15990, R.drawable.zapatillas1),
-        Product(11, "Zapatillas Deportivas", 15990, R.drawable.zapatillas3),
-
+        Product(11, "Zapatillas Deportivas", 15990, R.drawable.zapatillas3)
     )
 
-    //CARRITO DE COMPRAS
+    // PÁGINA 2
+    val productsList2 = listOf(
+        Product(12, "Zapatos Dama", 15990, R.drawable.zapatosdama1),
+        Product(13, "Chaqueta Roja", 15990, R.drawable.chaqueta1),
+        Product(14, "Chaqueta Amarilla", 15990, R.drawable.chaqueta2),
+        Product(15, "Chaqueta Gris", 15990, R.drawable.chaqueta3),
+        Product(16, "Chaqueta Negra", 15990, R.drawable.chaqueta4),
+        Product(17, "Chaleco negro", 15990, R.drawable.chaleco1),
+        Product(18, "Chaleco amarillo", 15990, R.drawable.chaleco2),
+        Product(19, "Chaleco verde", 15990, R.drawable.chaleco3),
+        Product(20, "Chaleco blanco", 15990, R.drawable.chaleco4)
+    )
+
+    // Gestión del Carrito
     val cartItems = mutableListOf<CartItem>()
 
     fun addToCart(product: Product) {
@@ -46,18 +57,11 @@ object DataRepository {
         }
     }
 
-    fun getCartTotal(): Int {
-        return cartItems.sumOf { it.getSubtotal() }
+    fun getCartTotal(): Double {
+        return cartItems.sumOf { it.product.price.toDouble() * it.quantity }
     }
 
     fun clearCart() {
         cartItems.clear()
-    }
-
-    // HISTORIAL DE COMPRAS
-    val ordersHistory = mutableListOf<Order>()
-
-    fun addOrder(order: Order) {
-        ordersHistory.add(0, order) // Agrega al principio de la lista (más reciente primero)
     }
 }
