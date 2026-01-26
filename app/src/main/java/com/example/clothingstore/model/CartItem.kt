@@ -5,7 +5,7 @@ data class CartItem(
     var quantity: Int
 ) {
     // Calculo del total
-    fun getSubtotal(): Double {
+    fun getSubtotal(): Int {
         return product.price * quantity
     }
 }

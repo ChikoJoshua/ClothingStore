@@ -5,8 +5,8 @@ import java.io.Serializable
 data class Product(
     val id: Int,
     val name: String,
-    val description: String,
-    val price: Double,
-    val imageUrl: String,
-    val category: String
+    val price: Int,
+    val imageRes: Int,
+    val description: String = "Sin descripción disponible",
+    val category: String = "General"
 ) : Serializable
