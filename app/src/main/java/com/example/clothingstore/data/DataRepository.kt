@@ -6,7 +6,7 @@ import com.example.clothingstore.model.Product
 
 object DataRepository {
 
-    // --- CATÁLOGO DE PRODUCTOS (Simulado) ---
+    //CATÁLOGO
     val productsList = listOf(
         Product(1, "Polera Básica Blanca", "100% Algodón, ajuste perfecto.", 9990.0, "", "Poleras"),
         Product(2, "Jeans Slim Fit", "Denim azul oscuro elásticado.", 24990.0, "", "Pantalones"),
@@ -16,7 +16,7 @@ object DataRepository {
         Product(6, "Camisa a Cuadros", "Estilo leñador, muy cómoda.", 18990.0, "", "Camisas")
     )
 
-    // --- CARRITO DE COMPRAS ---
+    //CARRITO DE COMPRAS
     val cartItems = mutableListOf<CartItem>()
 
     fun addToCart(product: Product) {
@@ -47,7 +47,7 @@ object DataRepository {
         cartItems.clear()
     }
 
-    // --- HISTORIAL DE ORDENES ---
+    // HISTORIAL DE COMPRAS
     val ordersHistory = mutableListOf<Order>()
 
     fun addOrder(order: Order) {

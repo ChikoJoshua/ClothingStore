@@ -23,10 +23,10 @@ import androidx.compose.material.icons.filled.ShoppingCart
 
 @Composable
 fun CatalogScreen(
-    onProductClick: (Product) -> Unit // Para ver detalles en el futuro
+    onProductClick: (Product) -> Unit
 ) {
     val context = LocalContext.current
-    val products = DataRepository.productsList // Obtenemos la lista del repositorio
+    val products = DataRepository.productsList
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
@@ -35,13 +35,13 @@ fun CatalogScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Lista en Cuadrícula (Grid)
+
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2), // 2 Columnas
+            columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 1. Los items del producto
+            // items del producto
             items(products) { product ->
                 ProductCard(product = product, onAddToCart = {
                     DataRepository.addToCart(product)
@@ -49,12 +49,11 @@ fun CatalogScreen(
                 })
             }
 
-            // 2. El botón de "Siguiente Página" al final (Requerimiento 1)
+            // botón de Siguiente Página
             item(span = { GridItemSpan(2) }) {
                 Button(
                     onClick = {
                         Toast.makeText(context, "Cargando más productos...", Toast.LENGTH_SHORT).show()
-                        // Aquí conectarías con la API para traer la página 2
                     },
                     modifier = Modifier.padding(vertical = 24.dp).fillMaxWidth()
                 ) {
@@ -75,10 +74,8 @@ fun ProductCard(product: Product, onAddToCart: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(8.dp)
         ) {
-            // Imagen simulada (Icono grande por ahora)
-            // Si instalas la librería "Coil", puedes usar AsyncImage aquí para URLs reales
             Icon(
-                imageVector = Icons.Default.ShoppingCart, // Cambiamos AddShoppingCart por ShoppingCart
+                imageVector = Icons.Default.ShoppingCart,
                 contentDescription = null,
                 modifier = Modifier.size(80.dp).padding(8.dp),
                 tint = Color.Gray

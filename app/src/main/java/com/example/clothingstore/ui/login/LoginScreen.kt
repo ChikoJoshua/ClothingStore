@@ -17,9 +17,9 @@ import com.example.clothingstore.data.SessionManager
 @Composable
 fun LoginScreen(
     sessionManager: SessionManager,
-    onLoginSuccess: () -> Unit // Acción a realizar cuando el login es correcto
+    onLoginSuccess: () -> Unit
 ) {
-    // Variables de estado para guardar lo que escribe el usuario
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
@@ -39,7 +39,7 @@ fun LoginScreen(
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // Campo Email
+        //Campo email
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -51,13 +51,13 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo Password
+        // Campo contraseña
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
             modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation(), // Oculta los caracteres con puntos
+            visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             isError = isError
         )
@@ -75,14 +75,10 @@ fun LoginScreen(
         // Botón Ingresar
         Button(
             onClick = {
-                // 1. Validación simple
                 if (email.isNotEmpty() && password.isNotEmpty()) {
-                    // 2. Guardar sesión usando nuestra clase SessionManager
                     sessionManager.createLoginSession(email)
 
                     Toast.makeText(context, "Bienvenido $email", Toast.LENGTH_SHORT).show()
-
-                    // 3. Ejecutar la navegación de éxito
                     onLoginSuccess()
                 } else {
                     isError = true

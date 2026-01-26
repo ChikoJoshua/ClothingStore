@@ -21,7 +21,7 @@ import com.example.clothingstore.model.CartItem
 fun CartScreen(
     onCheckoutClick: () -> Unit
 ) {
-    // Usamos .map { it.copy() } al inicio para cargar datos frescos
+
     val cartItems = remember { mutableStateListOf<CartItem>().apply { addAll(DataRepository.cartItems.map { it.copy() }) } }
 
     val totalAmount = DataRepository.getCartTotal()
@@ -47,16 +47,11 @@ fun CartScreen(
                         item = item,
                         onAdd = {
                             DataRepository.addToCart(item.product)
-
-                            // TRUCO: Limpiamos y recargamos con COPIAS (.copy)
-                            // Esto obliga a la pantalla a detectar el cambio sí o sí.
                             cartItems.clear()
                             cartItems.addAll(DataRepository.cartItems.map { it.copy() })
                         },
                         onRemove = {
                             DataRepository.removeOneFromCart(item.product)
-
-                            // TRUCO: Igual aquí, recargamos con copias
                             cartItems.clear()
                             cartItems.addAll(DataRepository.cartItems.map { it.copy() })
                         }

@@ -19,17 +19,17 @@ class SessionManager(context: Context) {
         editor.apply()
     }
 
-    // Verificar si está logueado
+    // Verificar LOGIN
     fun isLoggedIn(): Boolean {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
     }
 
-    // Cerrar sesión (para el futuro)
+    // Cerrar sesión
     fun logout() {
         prefs.edit().clear().apply()
     }
 
-    // Obtener email
+
     fun getUserEmail(): String? {
         return prefs.getString(KEY_USER_EMAIL, null)
     }

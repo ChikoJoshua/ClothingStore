@@ -40,9 +40,7 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
             TopAppBar(
                 title = { Text("Mi Tienda") },
                 actions = {
-                    // Botón de Perfil / Cuenta
                     IconButton(onClick = {
-                        // Requerimiento 2: Verificar sesión
                         if (sessionManager.isLoggedIn()) {
                             navController.navigate(Screen.Profile.route)
                         } else {
@@ -54,7 +52,6 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
 
                     // Botón de Carrito
                     IconButton(onClick = {
-                        // Requerimiento 2: También pide login para comprar/ver carrito final
                         if (sessionManager.isLoggedIn()) {
                             navController.navigate(Screen.Cart.route)
                         } else {
@@ -71,7 +68,6 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
             )
         }
     ) { innerPadding ->
-        // Aquí ocurre la magia de la navegación
         NavHost(
             navController = navController,
             startDestination = Screen.Catalog.route,
@@ -83,8 +79,6 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
                     onProductClick = { /* Navegar a detalle (futuro) */ }
                 )
             }
-
-            // ... dentro del NavHost ...
 
             // Pantalla 2: Login
             composable(Screen.Login.route) {
@@ -100,21 +94,18 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
                 )
             }
 
-            // ... resto del código ...
-
             // Pantalla 3: Carrito de Compras
             composable(Screen.Cart.route) {
                 CartScreen(
                     onCheckoutClick = {
-                        // Requerimiento 4: Ir a elegir retiro o despacho
                         navController.navigate(Screen.Checkout.route)
                     }
                 )
             }
 
-            // Pantalla 4: Checkout (pendiente, lo hacemos en el siguiente paso)
+            // Pantalla
             composable(Screen.Checkout.route) {
-                Text("Aquí elegiremos Retiro o Despacho")
+                Text("Retiro o Despacho")
             }
         }
     }
