@@ -20,15 +20,7 @@ object DataRepository {
         Product(9, "Chaqueta", 15990, R.drawable.chaquetaa),
         Product(10, "Zapatillas", 15990, R.drawable.zapatillas1),
         Product(11, "Zapatillas Deportivas", 15990, R.drawable.zapatillas3),
-        Product(12, "Zapatos Dama", 15990, R.drawable.zapatosdama1),
-        Product(13, "Chaqueta Roja", 15990, R.drawable.chaqueta1),
-        Product(14, "Chaqueta Amarilla", 15990, R.drawable.chaqueta2),
-        Product(15, "Chaqueta Gris", 15990, R.drawable.chaqueta3),
-        Product(16, "Chaqueta Negra", 15990, R.drawable.chaqueta4),
-        Product(17, "Chaleco negro", 15990, R.drawable.chaleco1),
-        Product(18, "Chaleco amarillo", 15990, R.drawable.chaleco2),
-        Product(19, "Chaleco verde", 15990, R.drawable.chaleco3),
-        Product(20, "Chaleco blanco", 15990, R.drawable.chaleco4)
+
     )
 
     //CARRITO DE COMPRAS
