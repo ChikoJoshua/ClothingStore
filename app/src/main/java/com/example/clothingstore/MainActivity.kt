@@ -58,7 +58,6 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
                         Icon(Icons.Default.Person, contentDescription = "Cuenta")
                     }
 
-                    // Botón de Carrito
                     CartIconWithBadge(onClick = {
                         if (sessionManager.isLoggedIn()) {
                             navController.navigate(Screen.Cart.route)
@@ -79,28 +78,23 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
             startDestination = Screen.Catalog.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // Pantalla 1: Catálogo
             composable(Screen.Catalog.route) {
                 CatalogScreen(
-                    onProductClick = { /* Navegar a detalle (futuro) */ }
+                    onProductClick = { }
                 )
             }
 
-            // Pantalla 2: Login
             composable(Screen.Login.route) {
                 LoginScreen(
                     sessionManager = sessionManager,
                     onLoginSuccess = {
-
                         navController.navigate(Screen.Catalog.route) {
-
                             popUpTo(Screen.Catalog.route) { inclusive = true }
                         }
                     }
                 )
             }
 
-            // Pantalla 3: Carrito de Compras
             composable(Screen.Cart.route) {
                 CartScreen(
                     onCheckoutClick = {
@@ -109,10 +103,72 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
                 )
             }
 
-            // Pantalla
+            composable(Screen.Profile.route) {
+                ProfileScreen(
+                    sessionManager = sessionManager,
+                    onLogout = {
+                        navController.navigate(Screen.Catalog.route) {
+                            popUpTo(0)
+                        }
+                    }
+                )
+            }
+
             composable(Screen.Checkout.route) {
                 Text("Retiro o Despacho")
             }
+        }
+    }
+}
+
+@Composable
+fun ProfileScreen(sessionManager: SessionManager, onLogout: () -> Unit) {
+    val email = sessionManager.getUserEmail() ?: "juan"
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Surface(
+            modifier = Modifier.size(120.dp),
+            shape = CircleShape,
+            color = Color(0xFF7E57C2).copy(alpha = 0.8f)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp),
+                    tint = Color.White
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Hola, $email",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Medium
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = {
+                sessionManager.logout()
+                onLogout()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Text("Cerrar Sesión", color = Color.White)
         }
     }
 }
