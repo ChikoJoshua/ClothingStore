@@ -1,6 +1,7 @@
 package com.example.clothingstore.ui.catalog
 
 import android.widget.Toast
+import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -20,58 +21,129 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.clothingstore.data.DataRepository
 import com.example.clothingstore.model.Product
+import kotlinx.coroutines.delay
 
 @Composable
 fun CatalogScreen(
     onProductClick: (Product) -> Unit
 ) {
     val context = LocalContext.current
-    var currentProducts by remember { mutableStateOf(DataRepository.productsList) }
+
+    var isLoading by remember { mutableStateOf(true) }
+    var currentProducts by remember { mutableStateOf(listOf<Product>()) }
     var showingPageOne by remember { mutableStateOf(true) }
+    var pageChangeRequested by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            text = if (showingPageOne) "Catálogo de Temporada" else "Nuevos Ingresos",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+    /* 🔄 CARGA INICIAL */
+    LaunchedEffect(Unit) {
+        delay(2000)
+        currentProducts = DataRepository.productsList
+        isLoading = false
+    }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // items del producto
-            items(currentProducts) { product ->
-                ProductCard(product = product, onAddToCart = {
-                    DataRepository.addToCart(product)
-                    Toast.makeText(context, "Agregado: ${product.name}", Toast.LENGTH_SHORT).show()
-                })
+    /* 🔄 CAMBIO DE PÁGINA */
+    LaunchedEffect(pageChangeRequested) {
+        if (pageChangeRequested) {
+            delay(1500)
+
+            if (showingPageOne) {
+                currentProducts = DataRepository.productsList2
+                showingPageOne = false
+                Toast.makeText(context, "Cargando más productos...", Toast.LENGTH_SHORT).show()
+            } else {
+                currentProducts = DataRepository.productsList
+                showingPageOne = true
+                Toast.makeText(context, "Volviendo a la página 1...", Toast.LENGTH_SHORT).show()
             }
 
-            // botón de Siguiente Página
-            item(span = { GridItemSpan(2) }) {
-                Button(
-                    onClick = {
-                        if (showingPageOne) {
-                            currentProducts = DataRepository.productsList2
-                            showingPageOne = false
-                            Toast.makeText(context, "Cargando más productos...", Toast.LENGTH_SHORT).show()
-                        } else {
-                            currentProducts = DataRepository.productsList
-                            showingPageOne = true
-                            Toast.makeText(context, "Volviendo a la página 1...", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    modifier = Modifier.padding(vertical = 24.dp).fillMaxWidth()
+            isLoading = false
+            pageChangeRequested = false
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        /* 🔄 LOADING */
+        AnimatedVisibility(
+            visible = isLoading,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut()
+        ) {
+            LoadingAnimation()
+        }
+
+        /* 🛍️ CATÁLOGO */
+        AnimatedVisibility(
+            visible = !isLoading,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+
+                Text(
+                    text = if (showingPageOne) "Catálogo de Temporada" else "Nuevos Ingresos",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(if (showingPageOne) "Siguiente Página" else "Volver")
+
+                    items(currentProducts) { product ->
+                        ProductCard(
+                            product = product,
+                            onAddToCart = {
+                                DataRepository.addToCart(product)
+                                Toast.makeText(
+                                    context,
+                                    "Agregado: ${product.name}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        )
+                    }
+
+                    item(span = { GridItemSpan(2) }) {
+                        Button(
+                            modifier = Modifier
+                                .padding(vertical = 24.dp)
+                                .fillMaxWidth(),
+                            onClick = {
+                                isLoading = true
+                                pageChangeRequested = true
+                            }
+                        ) {
+                            Text(if (showingPageOne) "Siguiente Página" else "Volver")
+                        }
+                    }
                 }
             }
         }
     }
 }
 
+/* 🔄 COMPONENTE DE CARGA */
+@Composable
+fun LoadingAnimation() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            strokeWidth = 4.dp,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+/* 🧱 CARD DE PRODUCTO */
 @Composable
 fun ProductCard(product: Product, onAddToCart: () -> Unit) {
     Card(
@@ -82,6 +154,7 @@ fun ProductCard(product: Product, onAddToCart: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(8.dp)
         ) {
+
             Image(
                 painter = painterResource(id = product.imageRes),
                 contentDescription = product.name,
@@ -91,8 +164,18 @@ fun ProductCard(product: Product, onAddToCart: () -> Unit) {
                 contentScale = ContentScale.Crop
             )
 
-            Text(text = product.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1)
-            Text(text = "$ ${product.price}", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = product.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                maxLines = 1
+            )
+
+            Text(
+                text = "$ ${product.price}",
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
