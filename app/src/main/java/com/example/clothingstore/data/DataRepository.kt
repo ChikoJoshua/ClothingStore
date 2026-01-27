@@ -1,5 +1,6 @@
 package com.example.clothingstore.data
 
+import androidx.compose.runtime.mutableStateListOf
 import com.example.clothingstore.R
 import com.example.clothingstore.model.CartItem
 import com.example.clothingstore.model.Product
@@ -24,9 +25,6 @@ object DataRepository {
     // PÁGINA 2
     val productsList2 = listOf(
         Product(12, "Zapatos Dama", 15990, R.drawable.zapatosdama1),
-        Product(13, "Chaqueta Roja", 15990, R.drawable.chaqueta1),
-        Product(14, "Chaqueta Amarilla", 15990, R.drawable.chaqueta2),
-        Product(15, "Chaqueta Gris", 15990, R.drawable.chaqueta3),
         Product(16, "Chaqueta Negra", 15990, R.drawable.chaqueta4),
         Product(17, "Chaleco negro", 15990, R.drawable.chaleco1),
         Product(18, "Chaleco amarillo", 15990, R.drawable.chaleco2),
@@ -35,12 +33,13 @@ object DataRepository {
     )
 
     // Gestión del Carrito
-    val cartItems = mutableListOf<CartItem>()
+    val cartItems = mutableStateListOf<CartItem>()
 
     fun addToCart(product: Product) {
         val existingItem = cartItems.find { it.product.id == product.id }
         if (existingItem != null) {
-            existingItem.quantity++
+            val index = cartItems.indexOf(existingItem)
+            cartItems[index] = existingItem.copy(quantity = existingItem.quantity + 1)
         } else {
             cartItems.add(CartItem(product, 1))
         }
@@ -49,10 +48,11 @@ object DataRepository {
     fun removeOneFromCart(product: Product) {
         val existingItem = cartItems.find { it.product.id == product.id }
         if (existingItem != null) {
+            val index = cartItems.indexOf(existingItem)
             if (existingItem.quantity > 1) {
-                existingItem.quantity--
+                cartItems[index] = existingItem.copy(quantity = existingItem.quantity - 1)
             } else {
-                cartItems.remove(existingItem)
+                cartItems.removeAt(index)
             }
         }
     }
