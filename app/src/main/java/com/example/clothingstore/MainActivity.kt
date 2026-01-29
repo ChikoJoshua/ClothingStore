@@ -26,6 +26,7 @@ import com.example.clothingstore.ui.Screen
 import com.example.clothingstore.ui.catalog.CatalogScreen
 import com.example.clothingstore.ui.login.LoginScreen
 import com.example.clothingstore.ui.cart.CartScreen
+import com.example.clothingstore.ui.pedido.PedidoScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,7 +116,7 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
             }
 
             composable(Screen.Checkout.route) {
-                Text("Retiro o Despacho")
+                PedidoScreen()
             }
         }
     }
