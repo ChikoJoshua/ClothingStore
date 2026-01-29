@@ -16,6 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+// IMPORTANTE: Asegúrate de que estos imports coincidan con tus archivos
+import com.example.clothingstore.data.DataRepository
+import com.example.clothingstore.data.Pedido
+import java.text.SimpleDateFormat
+import java.util.*
 
 enum class MetodoEntrega { RETIRO, DESPACHO, NINGUNO }
 
@@ -24,9 +29,24 @@ enum class MetodoEntrega { RETIRO, DESPACHO, NINGUNO }
 fun PedidoScreen() {
     var metodoSeleccionado by remember { mutableStateOf(MetodoEntrega.NINGUNO) }
     var sucursalSeleccionada by remember { mutableStateOf("") }
+    var mostrarAlertaExito by remember { mutableStateOf(false) }
 
     // Lista de de sucursales
     val sucursales = listOf("Sucursal Mall Costanera", "Sucursal Santiago Centro", "Sucursal Concepción", "Sucursal Chillán", "Sucursal Antonio Varas", "Sucursal Las Condes")
+
+    // Alerta de compra exitosa
+    if (mostrarAlertaExito) {
+        AlertDialog(
+            onDismissRequest = { mostrarAlertaExito = false },
+            confirmButton = {
+                Button(onClick = { mostrarAlertaExito = false }) {
+                    Text("Cerrar")
+                }
+            },
+            title = { Text("¡Compra realizada con éxito!") },
+            text = { Text("Tu pedido ha sido registrado y ya puedes verlo en tu historial.") }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -76,11 +96,36 @@ fun PedidoScreen() {
                     SeccionRetiro(
                         sucursales = sucursales,
                         seleccionada = sucursalSeleccionada,
-                        onSelect = { sucursalSeleccionada = it }
+                        onSelect = { sucursalSeleccionada = it },
+                        onConfirmar = {
+                            val nuevoPedido = Pedido(
+                                id = "#${(1000..9999).random()}",
+                                fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date()),
+                                total = DataRepository.getCartTotal(),
+                                metodoEntrega = "Retiro: $sucursalSeleccionada",
+                                estado = "Listo para retiro",
+                                detalle = "${DataRepository.cartItems.size} productos"
+                            )
+                            DataRepository.registrarPedido(nuevoPedido)
+                            mostrarAlertaExito = true
+                        }
                     )
                 }
                 MetodoEntrega.DESPACHO -> {
-                    SeccionDespacho()
+                    SeccionDespacho(
+                        onConfirmar = { direccion, comuna ->
+                            val nuevoPedido = Pedido(
+                                id = "#${(1000..9999).random()}",
+                                fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date()),
+                                total = DataRepository.getCartTotal(),
+                                metodoEntrega = "Despacho: $direccion, $comuna",
+                                estado = "En despacho",
+                                detalle = "${DataRepository.cartItems.size} productos"
+                            )
+                            DataRepository.registrarPedido(nuevoPedido)
+                            mostrarAlertaExito = true
+                        }
+                    )
                 }
                 MetodoEntrega.NINGUNO -> {
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -124,7 +169,12 @@ fun OpcionCard(
 }
 
 @Composable
-fun SeccionRetiro(sucursales: List<String>, seleccionada: String, onSelect: (String) -> Unit) {
+fun SeccionRetiro(
+    sucursales: List<String>,
+    seleccionada: String,
+    onSelect: (String) -> Unit,
+    onConfirmar: () -> Unit
+) {
     Column {
         Text("Seleccione la sucursal más cercana:", fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
@@ -141,7 +191,10 @@ fun SeccionRetiro(sucursales: List<String>, seleccionada: String, onSelect: (Str
             }
         }
         if (seleccionada.isNotEmpty()) {
-            Button(onClick = { /* TODO: Guardar pedido */ }, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+            Button(
+                onClick = { onConfirmar() },
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            ) {
                 Text("Confirmar Retiro")
             }
         }
@@ -149,7 +202,7 @@ fun SeccionRetiro(sucursales: List<String>, seleccionada: String, onSelect: (Str
 }
 
 @Composable
-fun SeccionDespacho() {
+fun SeccionDespacho(onConfirmar: (String, String) -> Unit) {
     var direccion by remember { mutableStateOf("") }
     var comuna by remember { mutableStateOf("") }
     var obs by remember { mutableStateOf("") }
@@ -178,7 +231,7 @@ fun SeccionDespacho() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { /* TODO: Guardar datos envío */ },
+            onClick = { onConfirmar(direccion, comuna) },
             modifier = Modifier.fillMaxWidth(),
             enabled = direccion.isNotEmpty() && comuna.isNotEmpty()
         ) {

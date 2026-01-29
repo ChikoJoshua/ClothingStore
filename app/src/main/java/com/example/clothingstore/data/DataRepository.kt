@@ -35,6 +35,9 @@ object DataRepository {
     // Gestión del Carrito
     val cartItems = mutableStateListOf<CartItem>()
 
+    //Historial de Pedidos
+    val pedidosRealizados = mutableStateListOf<Pedido>()
+
     fun addToCart(product: Product) {
         val existingItem = cartItems.find { it.product.id == product.id }
         if (existingItem != null) {
@@ -63,5 +66,11 @@ object DataRepository {
 
     fun clearCart() {
         cartItems.clear()
+    }
+
+    //  registrar la compra en el historial
+    fun registrarPedido(pedido: Pedido) {
+        pedidosRealizados.add(pedido)
+        clearCart()
     }
 }
