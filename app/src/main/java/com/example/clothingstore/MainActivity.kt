@@ -3,6 +3,7 @@ package com.example.clothingstore
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -10,15 +11,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.clothingstore.data.DataRepository
 import com.example.clothingstore.data.SessionManager
@@ -27,6 +30,7 @@ import com.example.clothingstore.ui.catalog.CatalogScreen
 import com.example.clothingstore.ui.login.LoginScreen
 import com.example.clothingstore.ui.cart.CartScreen
 import com.example.clothingstore.ui.pedido.PedidoScreen
+import com.example.clothingstore.ui.historial.HistorialScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,11 +47,46 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ClothingStoreApp(sessionManager: SessionManager) {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    val displayName = remember(navBackStackEntry) {
+        val email = sessionManager.getUserEmail()
+        if (sessionManager.isLoggedIn() && email != null) {
+            email.substringBefore("@")
+        } else {
+            null
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mi Tienda") },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(if (displayName != null) 65.dp else 40.dp)
+                                .padding(end = 8.dp)
+                        )
+                        Column {
+                            Text(
+                                text = "Clothing Store",
+                                fontSize = if (displayName != null) 18.sp else 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (displayName != null) {
+                                Text(
+                                    text = "Hola, $displayName",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                    }
+                },
                 actions = {
                     IconButton(onClick = {
                         if (sessionManager.isLoggedIn()) {
@@ -80,9 +119,7 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Catalog.route) {
-                CatalogScreen(
-                    onProductClick = { }
-                )
+                CatalogScreen(onProductClick = { })
             }
 
             composable(Screen.Login.route) {
@@ -111,19 +148,42 @@ fun ClothingStoreApp(sessionManager: SessionManager) {
                         navController.navigate(Screen.Catalog.route) {
                             popUpTo(0)
                         }
+                    },
+                    onVerHistorial = {
+                        navController.navigate("historial")
                     }
                 )
             }
 
             composable(Screen.Checkout.route) {
-                PedidoScreen()
+                PedidoScreen(
+                    onVolverAlCatalogo = {
+                        navController.navigate(Screen.Catalog.route) {
+                            popUpTo(Screen.Catalog.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable("historial") {
+                HistorialScreen(
+                    onVolverAlCatalogo = {
+                        navController.navigate(Screen.Catalog.route) {
+                            popUpTo(Screen.Catalog.route) { inclusive = true }
+                        }
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun ProfileScreen(sessionManager: SessionManager, onLogout: () -> Unit) {
+fun ProfileScreen(
+    sessionManager: SessionManager,
+    onLogout: () -> Unit,
+    onVerHistorial: () -> Unit
+) {
     val email = sessionManager.getUserEmail() ?: "juan"
 
     Column(
@@ -157,6 +217,18 @@ fun ProfileScreen(sessionManager: SessionManager, onLogout: () -> Unit) {
         )
 
         Spacer(modifier = Modifier.height(32.dp))
+
+        OutlinedButton(
+            onClick = onVerHistorial,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Text("Mis Pedidos")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         Button(
             onClick = {

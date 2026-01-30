@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 // IMPORTANTE: Asegúrate de que estos imports coincidan con tus archivos
 import com.example.clothingstore.data.DataRepository
 import com.example.clothingstore.data.Pedido
+import com.example.clothingstore.ui.Screen
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,7 +27,7 @@ enum class MetodoEntrega { RETIRO, DESPACHO, NINGUNO }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PedidoScreen() {
+fun PedidoScreen(onVolverAlCatalogo: () -> Unit) {
     var metodoSeleccionado by remember { mutableStateOf(MetodoEntrega.NINGUNO) }
     var sucursalSeleccionada by remember { mutableStateOf("") }
     var mostrarAlertaExito by remember { mutableStateOf(false) }
@@ -37,10 +38,13 @@ fun PedidoScreen() {
     // Alerta de compra exitosa
     if (mostrarAlertaExito) {
         AlertDialog(
-            onDismissRequest = { mostrarAlertaExito = false },
+            onDismissRequest = {  },
             confirmButton = {
-                Button(onClick = { mostrarAlertaExito = false }) {
-                    Text("Cerrar")
+                Button(onClick = {
+                    mostrarAlertaExito = false
+                    onVolverAlCatalogo()
+                }) {
+                    Text("Volver a la Tienda")
                 }
             },
             title = { Text("¡Compra realizada con éxito!") },
@@ -132,6 +136,15 @@ fun PedidoScreen() {
                         Text("Selecciona una opción arriba", color = Color.Gray)
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedButton(
+                onClick = { onVolverAlCatalogo() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Seguir comprando")
             }
         }
     }
